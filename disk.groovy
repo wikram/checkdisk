@@ -22,6 +22,7 @@ node('slave')
 								sh "sed -i 's/\"//g' whichVM.txt"
 								ManagedByName = sh (script: "cat whichVM.txt | cut -d \"/\" -f 9", returnStdout: true).trim()
 								println "OUT = ${ManagedByName}"
+								sh 'rm -f whichVM.txt'
 					}
 	                if (ManagedByName == "" || ManagedByName == null || ManagedByName.isEmpty())
 	                {
@@ -46,6 +47,10 @@ node('slave')
 			                    az disk delete --name ${DiskName} --resource-group ${Resource_group_name} --yes
 			                    """
 			                    diskExists = false
+	                        }
+	                        else
+	                        {
+	                        	println "Packer is running."
 	                        }
 	                    }
 	                    catch (Exception e){
