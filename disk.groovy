@@ -35,6 +35,9 @@ node('slave')
 	                {
 	                    echo "Disk ${DiskName} is attached to ${ManagedByName}"
 	                    try{
+	                    	sh """
+	                    	ps aufxwww | grep packer
+	                    	"""
 	                        sh """
 		                    az vm delete -g ${Resource_group_name} --name ${ManagedByName} --yes
 		                    az network nic delete -g ${Resource_group_name} --name ${ManagedByName}
