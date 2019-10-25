@@ -1,6 +1,7 @@
 String ManagedByName = ""
 String CredID = "sandbox-packer"
 def diskExists = true
+def int Packer_var = 0
 
 BUILD_DIR = 'build'
 
@@ -35,16 +36,17 @@ node('slave')
 	                {
 	                    echo "Disk ${DiskName} is attached to ${ManagedByName}"
 	                    try{
-	                    	sh """
-	                    	ps aufxwww | grep packer
-	                    	"""
-	                        sh """
-		                    az vm delete -g ${Resource_group_name} --name ${ManagedByName} --yes
-		                    az network nic delete -g ${Resource_group_name} --name ${ManagedByName}
-		                    az disk delete --name ${ManagedByName} --resource-group ${Resource_group_name} --yes
-		                    az disk delete --name ${DiskName} --resource-group ${Resource_group_name} --yes
-		                    """
-		                    diskExists = false
+	                    	Packer_var = sh (script: "ps aufxwww | grep -v grep | grep -c packer", returnStdout: true).trim().toInteger()
+	                        if (Packer_var < 1)
+	                        {
+	                        	sh """
+			                    az vm delete -g ${Resource_group_name} --name ${ManagedByName} --yes
+			                    az network nic delete -g ${Resource_group_name} --name ${ManagedByName}
+			                    az disk delete --name ${ManagedByName} --resource-group ${Resource_group_name} --yes
+			                    az disk delete --name ${DiskName} --resource-group ${Resource_group_name} --yes
+			                    """
+			                    diskExists = false
+	                        }
 	                    }
 	                    catch (Exception e){
 	                    	println "The VM is currently being use by packer process."
